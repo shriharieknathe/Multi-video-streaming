@@ -1,0 +1,10 @@
+.stream-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.stream-page h1 {
+  margin-bottom: 1rem;
+  color: #333;
+}
