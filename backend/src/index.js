@@ -4,6 +4,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const videoRoutes = require('./routes/videoRoutes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,33 +13,42 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static HLS files
-app.use('/streams', express.static(path.join(__dirname, '../streams')));
+// Serve static HLS files with proper CORS headers
+app.use('/streams', express.static(path.join(__dirname, '../streams'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.m3u8')) {
+      res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+    } else if (filePath.endsWith('.ts')) {
+      res.setHeader('Content-Type', 'video/mp2t');
+    }
+  }
+}));
 
 // Routes
 app.use('/api/videos', videoRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
-  res.json({ message: 'Multi-Video Streaming API is running' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({
-      success: false,
-      message: 'File size too large. Maximum size is 20MB.'
-    });
-  }
-  
-  res.status(500).json({
-    success: false,
-    message: err.message || 'Something went wrong!'
+  res.json({ 
+    message: 'Multi-Video Streaming API is running',
+    endpoints: {
+      upload: 'POST /api/videos/upload',
+      list: 'GET /api/videos',
+      stream: 'GET /streams/:videoId/index.m3u8'
+    }
   });
 });
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Global error handler
+app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
