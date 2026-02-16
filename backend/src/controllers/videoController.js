@@ -1,7 +1,9 @@
 const path = require('path');
 const fs = require('fs');
+const { getVideoDuration, convertToHLS } = require('../utils/ffmpeg');
 
 const videosFilePath = path.join(__dirname, '../../data/videos.json');
+const MAX_DURATION = 10; 
 
 // Helper to read videos from JSON file
 const getVideosFromFile = () => {
@@ -18,8 +20,20 @@ const saveVideosToFile = (videos) => {
   fs.writeFileSync(videosFilePath, JSON.stringify(videos, null, 2));
 };
 
+const deleteFile = (filePath) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  }
+};
+
 // Upload videos controller
 const uploadVideos = async (req, res) => {
+  const uploadedFiles = req.files || [];
+  
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -29,6 +43,7 @@ const uploadVideos = async (req, res) => {
     }
 
     if (req.files.length < 2) {
+      uploadedFiles.forEach(file => deleteFile(file.path));
       return res.status(400).json({
         success: false,
         message: 'Please upload at least 2 videos'
@@ -37,23 +52,49 @@ const uploadVideos = async (req, res) => {
 
     const videos = getVideosFromFile();
     const uploadedVideos = [];
+    const errors = [];
 
     for (const file of req.files) {
       const videoId = path.basename(file.filename, path.extname(file.filename));
       
-      const videoData = {
-        id: videoId,
-        title: `Video ${videos.length + uploadedVideos.length + 1}`,
-        originalName: file.originalname,
-        filename: file.filename,
-        filepath: file.path,
-        size: file.size,
-        mimetype: file.mimetype,
-        streamUrl: `/streams/${videoId}/index.m3u8`,
-        createdAt: new Date().toISOString()
-      };
+      try {
+        const duration = await getVideoDuration(file.path);
+        
+        if (duration > MAX_DURATION) {
+          errors.push(`${file.originalname}: Video exceeds ${MAX_DURATION} seconds (${duration.toFixed(1)}s)`);
+          deleteFile(file.path);
+          continue;
+        }
 
-      uploadedVideos.push(videoData);
+        await convertToHLS(file.path, videoId);
+
+        const videoData = {
+          id: videoId,
+          title: `Video ${videos.length + uploadedVideos.length + 1}`,
+          originalName: file.originalname,
+          filename: file.filename,
+          duration: duration,
+          size: file.size,
+          mimetype: file.mimetype,
+          streamUrl: `/streams/${videoId}/index.m3u8`,
+          createdAt: new Date().toISOString()
+        };
+
+        uploadedVideos.push(videoData);
+        
+      } catch (err) {
+        console.error(`Error processing ${file.originalname}:`, err);
+        errors.push(`${file.originalname}: Failed to process video`);
+        deleteFile(file.path);
+      }
+    }
+
+    if (uploadedVideos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No valid videos were uploaded',
+        errors
+      });
     }
 
     // Save to file
@@ -62,11 +103,14 @@ const uploadVideos = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `${uploadedVideos.length} videos uploaded successfully`,
-      videos: uploadedVideos
+      message: `${uploadedVideos.length} video(s) uploaded and converted successfully`,
+      videos: uploadedVideos,
+      errors: errors.length > 0 ? errors : undefined
     });
 
   } catch (error) {
+    uploadedFiles.forEach(file => deleteFile(file.path));
+    
     console.error('Upload error:', error);
     res.status(500).json({
       success: false,
