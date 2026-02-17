@@ -2,6 +2,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
 const fs = require('fs');
 
+// Get video duration using ffprobe
 const getVideoDuration = (filePath) => {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
@@ -14,6 +15,7 @@ const getVideoDuration = (filePath) => {
   });
 };
 
+// Convert video to HLS format for streaming
 const convertToHLS = (inputPath, videoId) => {
   return new Promise((resolve, reject) => {
     const outputDir = path.join(__dirname, '../../streams', videoId);
@@ -26,10 +28,10 @@ const convertToHLS = (inputPath, videoId) => {
 
     ffmpeg(inputPath)
       .outputOptions([
-        '-codec copy',
+        '-codec copy',       // copy codec, no re-encoding
         '-start_number 0',
-        '-hls_time 2',
-        '-hls_list_size 0',
+        '-hls_time 2',       // 2 second segments
+        '-hls_list_size 0',  // keep all segments in playlist
         '-f hls'
       ])
       .output(outputPath)

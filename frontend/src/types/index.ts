@@ -1,3 +1,4 @@
+// Video metadata from API
 export interface Video {
   id: string;
   title: string;
@@ -8,6 +9,7 @@ export interface Video {
   createdAt: string;
 }
 
+// Upload API response
 export interface UploadResponse {
   success: boolean;
   message: string;
