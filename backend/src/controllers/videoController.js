@@ -61,7 +61,6 @@ const uploadVideos = async (req, res) => {
       });
     }
 
-    const videos = getVideosFromFile();
     const uploadedVideos = [];
     const errors = [];
 
@@ -81,7 +80,7 @@ const uploadVideos = async (req, res) => {
 
         const videoData = {
           id: videoId,
-          title: `Video ${videos.length + uploadedVideos.length + 1}`,
+          title: `Video ${uploadedVideos.length + 1}`,
           originalName: file.originalname,
           filename: file.filename,
           duration: duration,
@@ -108,9 +107,8 @@ const uploadVideos = async (req, res) => {
       });
     }
 
-    // Save to file
-    const allVideos = [...videos, ...uploadedVideos];
-    saveVideosToFile(allVideos);
+    // Save to file (replace all previous videos)
+    saveVideosToFile(uploadedVideos);
 
     res.status(201).json({
       success: true,
