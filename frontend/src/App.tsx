@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
 import StreamPage from './pages/StreamPage';
 import './App.css';
@@ -9,8 +9,12 @@ function App() {
       <nav className="navbar">
         <div className="nav-brand">Video Streaming</div>
         <div className="nav-links">
-          <Link to="/upload">Upload</Link>
-          <Link to="/stream">Stream</Link>
+          <NavLink to="/upload" className={({ isActive }) => isActive ? 'active' : ''}>
+            Upload
+          </NavLink>
+          <NavLink to="/stream" className={({ isActive }) => isActive ? 'active' : ''}>
+            Stream
+          </NavLink>
         </div>
       </nav>
       <main>

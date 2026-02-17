@@ -26,7 +26,7 @@ const convertToHLS = (inputPath, videoId) => {
 
     ffmpeg(inputPath)
       .outputOptions([
-        '-codec: copy',
+        '-codec copy',
         '-start_number 0',
         '-hls_time 2',
         '-hls_list_size 0',

@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "09514661-9d2e-4c0c-91ea-3a4c914c801b",
+    "title": "Video 1",
+    "originalName": "video1.mp4",
+    "filename": "09514661-9d2e-4c0c-91ea-3a4c914c801b.mp4",
+    "duration": 5,
+    "size": 9077481,
+    "mimetype": "video/mp4",
+    "streamUrl": "/streams/09514661-9d2e-4c0c-91ea-3a4c914c801b/index.m3u8",
+    "createdAt": "2026-02-17T12:42:32.358Z"
+  },
+  {
+    "id": "bd5e0bbe-fe4f-47c3-89f5-12a1fac853e5",
+    "title": "Video 2",
+    "originalName": "video2.mp4",
+    "filename": "bd5e0bbe-fe4f-47c3-89f5-12a1fac853e5.mp4",
+    "duration": 5,
+    "size": 9077481,
+    "mimetype": "video/mp4",
+    "streamUrl": "/streams/bd5e0bbe-fe4f-47c3-89f5-12a1fac853e5/index.m3u8",
+    "createdAt": "2026-02-17T12:42:32.710Z"
+  }
+]

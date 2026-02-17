@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import VideoPlayer from '../components/VideoPlayer';
 import { getVideos } from '../services/api';
-import { Video } from '../types';
+import type { Video } from '../types/index.ts';
 import './StreamPage.css';
 
 const StreamPage = () => {
