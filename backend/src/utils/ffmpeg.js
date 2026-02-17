@@ -28,7 +28,8 @@ const convertToHLS = (inputPath, videoId) => {
 
     ffmpeg(inputPath)
       .outputOptions([
-        '-codec copy',       // copy codec, no re-encoding
+        '-c:v libx264',      // re-encode video for compatibility
+        '-c:a aac',          // re-encode audio
         '-start_number 0',
         '-hls_time 2',       // 2 second segments
         '-hls_list_size 0',  // keep all segments in playlist

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const videoRoutes = require('./routes/videoRoutes');
@@ -9,12 +10,18 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Ensure streams directory exists
+const streamsDir = path.join(__dirname, '../streams');
+if (!fs.existsSync(streamsDir)) {
+  fs.mkdirSync(streamsDir, { recursive: true });
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Serve static HLS files with proper CORS headers
-app.use('/streams', express.static(path.join(__dirname, '../streams'), {
+app.use('/streams', express.static(streamsDir, {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.m3u8')) {
       res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
