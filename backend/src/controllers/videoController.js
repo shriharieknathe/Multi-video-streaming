@@ -2,8 +2,19 @@ const path = require('path');
 const fs = require('fs');
 const { getVideoDuration, convertToHLS } = require('../utils/ffmpeg');
 
-const videosFilePath = path.join(__dirname, '../../data/videos.json');
+// Ensure data directory exists
+const dataDir = path.join(__dirname, '../../data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
+const videosFilePath = path.join(dataDir, 'videos.json');
 const MAX_DURATION = 10; 
+
+// Initialize videos.json if it doesn't exist
+if (!fs.existsSync(videosFilePath)) {
+  fs.writeFileSync(videosFilePath, '[]');
+}
 
 // Helper to read videos from JSON file
 const getVideosFromFile = () => {
