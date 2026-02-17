@@ -17,7 +17,8 @@ const VideoPlayer = ({ src, onEnded, autoPlay = true }: VideoPlayerProps) => {
     const video = videoRef.current;
     if (!video) return;
 
-    const fullUrl = `${API_BASE_URL}${src}`;
+    const baseUrl = API_BASE_URL.replace(/\/$/, '');
+    const fullUrl = `${baseUrl}${src}`;
 
     // Cleanup previous HLS instance
     if (hlsRef.current) {
