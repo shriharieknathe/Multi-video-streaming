@@ -37,6 +37,13 @@ npm run dev
 ```
 App runs on `http://localhost:5173`
 
+## Deployment
+
+- **Frontend:** [multi-video-streaming.netlify.app](https://multi-video-streaming.netlify.app/)
+- **Backend:** [multi-video-streaming-production.up.railway.app](https://multi-video-streaming-production.up.railway.app/)
+
+Set the frontend env `VITE_API_URL` to the backend URL when building for production.
+
 ## API Endpoints
 
 - `POST /api/videos/upload` - Upload videos
